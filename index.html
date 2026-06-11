@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#07070f">
+<title>Arcana — Tarot Digital</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Crimson Text',Georgia,serif;background:#07070f;color:#f0e6c8;min-height:100vh;line-height:1.6}
+#app{max-width:860px;margin:0 auto;padding:16px 16px 100px}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,15,.97);border-top:1px solid rgba(201,162,39,.2);display:flex;justify-content:space-around;padding:8px 0 16px;z-index:100}
+nav button{background:none;border:none;color:#5a4a2a;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.08em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;transition:color .2s;text-transform:uppercase}
+nav button span.i{font-size:20px}
+nav button.on{color:#c9a227}
+.page{display:none}.page.on{display:block}
+.hero{text-align:center;padding:36px 0 28px}
+.hero-moon{font-size:5rem;display:block;margin-bottom:12px}
+.hero-title{font-family:'Cinzel',serif;font-size:2.4rem;font-weight:700;color:#c9a227;letter-spacing:.2em}
+.hero-sub{color:#a89060;font-style:italic;font-size:1.1rem;margin-top:10px}
+.divider{width:100px;height:1px;background:linear-gradient(90deg,transparent,#c9a227,transparent);margin:14px auto}
+.box{background:#111124;border:1px solid rgba(201,162,39,.2);border-radius:12px;padding:18px;margin-bottom:14px}
+.box-title{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:#c9a227;margin-bottom:14px}
+textarea{width:100%;background:#0d0d1a;border:1px solid rgba(201,162,39,.2);border-radius:8px;color:#f0e6c8;font-family:'Crimson Text',serif;font-size:1rem;font-style:italic;padding:12px;resize:vertical;min-height:78px;outline:none}
+textarea:focus{border-color:#c9a227}
+textarea::placeholder{color:#5a4a2a}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.scard{background:#111124;border:1px solid rgba(201,162,39,.2);border-radius:14px;padding:18px 14px;cursor:pointer;text-align:center;transition:all .22s;position:relative}
+.scard:hover{border-color:rgba(201,162,39,.5);transform:translateY(-2px)}
+.scard .cnt{position:absolute;top:8px;right:10px;font-family:'Cinzel',serif;font-size:.6rem;color:#5a4a2a}
+.scard .ico{font-size:1.9rem;display:block;margin-bottom:8px}
+.scard .nm{font-family:'Cinzel',serif;font-size:.75rem;color:#c9a227;letter-spacing:.07em;text-transform:uppercase}
+.scard .ds{color:#a89060;font-size:.82rem;margin-top:5px;font-style:italic;line-height:1.35}
+.btn{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;border:none;border-radius:8px;cursor:pointer;padding:11px 18px;transition:all .22s}
+.btn-g{background:linear-gradient(135deg,#7a6118,#c9a227);color:#0a0810;font-weight:700}
+.btn-g:hover{filter:brightness(1.15)}
+.btn-o{background:transparent;border:1px solid rgba(201,162,39,.5);color:#c9a227}
+.btn-o:hover{background:rgba(201,162,39,.1)}
+.btn-sm{padding:8px 13px;font-size:.63rem}
+.actrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px;padding-bottom:8px}
+/* CARDS LAYOUT */
+.cards-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:16px 0}
+.cpos{display:flex;flex-direction:column;align-items:center;gap:5px}
+.cpos-lbl{font-family:'Cinzel',serif;font-size:.56rem;letter-spacing:.07em;text-transform:uppercase;color:#a89060;text-align:center;line-height:1.3;max-width:88px}
+.cw{width:78px;height:126px;cursor:pointer;perspective:600px}
+.ci{position:relative;width:100%;height:100%;transition:transform .65s;transform-style:preserve-3d}
+.ci.flipped{transform:rotateY(180deg)}
+.cf{position:absolute;inset:0;backface-visibility:hidden;border-radius:9px}
+.cb{background:linear-gradient(145deg,#1a0a2e,#0d0520);border:1px solid #7a6118;display:flex;align-items:center;justify-content:center}
+.cb::after{content:'✦';color:#7a6118;font-size:1.7rem;opacity:.5}
+.cv{transform:rotateY(180deg);background:linear-gradient(160deg,#1e0f3a,#2a1040);border:2px solid #c9a227;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:6px 4px}
+.cv.rev{transform:rotateY(180deg) rotate(180deg)}
+.csym{font-size:1.7rem;line-height:1}
+.cnum{font-family:'Cinzel',serif;font-size:.42rem;letter-spacing:.05em;color:#c9a227;text-align:center}
+/* CELTIC GRID */
+.celtic{display:grid;grid-template-areas:". b2 ." "b5 b1 b6" ". b3 ." ". b4 ." "b7 b8 b9" "b10 . .";grid-template-columns:1fr 1fr 1fr;gap:5px;max-width:290px;margin:0 auto}
+.celtic [data-p="1"]{grid-area:b1} .celtic [data-p="2"]{grid-area:b2} .celtic [data-p="3"]{grid-area:b3} .celtic [data-p="4"]{grid-area:b4} .celtic [data-p="5"]{grid-area:b5} .celtic [data-p="6"]{grid-area:b6} .celtic [data-p="7"]{grid-area:b7} .celtic [data-p="8"]{grid-area:b8} .celtic [data-p="9"]{grid-area:b9} .celtic [data-p="10"]{grid-area:b10}
+.year-g{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0}
+/* RESULTS */
+.ritem{background:#161630;border:1px solid rgba(201,162,39,.2);border-radius:10px;padding:13px;margin-bottom:9px;cursor:pointer;transition:border-color .18s}
+.ritem:hover{border-color:rgba(201,162,39,.5)}
+.ritem-h{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.chip{background:#7a6118;color:#0a0810;font-family:'Cinzel',serif;font-size:.58rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.rname{font-family:'Cinzel',serif;font-size:.88rem;color:#e4c55e;letter-spacing:.04em}
+.rpre{color:#a89060;font-size:.88rem;line-height:1.5}
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.ov.on{display:flex}
+.sh{background:#111124;border:1px solid rgba(201,162,39,.2);border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;padding:8px 18px 52px;animation:up .32s ease}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.handle{width:38px;height:4px;background:rgba(201,162,39,.2);border-radius:2px;margin:11px auto 18px}
+.mh{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px}
+.msym{font-size:2.8rem;line-height:1;min-width:48px;text-align:center}
+.minfo h2{font-family:'Cinzel',serif;font-size:1.25rem;color:#c9a227;letter-spacing:.07em}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.tag{background:#0d0d1a;border:1px solid rgba(201,162,39,.2);border-radius:20px;padding:3px 9px;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.07em;color:#a89060}
+.ms{margin-bottom:16px}
+.ms-t{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:#7a6118;margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.ms-t::after{content:'';flex:1;height:1px;background:rgba(201,162,39,.15)}
+.ms p{color:#a89060;font-size:.93rem;line-height:1.7}
+.kws{display:flex;flex-wrap:wrap;gap:5px}
+.kw{background:rgba(201,162,39,.1);border:1px solid #7a6118;border-radius:20px;padding:4px 11px;font-size:.78rem;color:#e4c55e;font-style:italic}
+.rev-b{background:rgba(139,26,26,.3);border:1px solid rgba(139,26,26,.5);color:#e08080;padding:3px 9px;border-radius:20px;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;display:inline-block;margin-bottom:9px}
+/* LIBRARY */
+.lsearch{background:#0d0d1a;border:1px solid rgba(201,162,39,.2);border-radius:8px;color:#f0e6c8;font-family:'Crimson Text',serif;font-size:1rem;padding:11px 15px;width:100%;outline:none;margin-bottom:11px}
+.lsearch:focus{border-color:#c9a227}
+.lfilters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.fb{background:#0d0d1a;border:1px solid rgba(201,162,39,.2);border-radius:20px;color:#a89060;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;padding:5px 11px;cursor:pointer;transition:all .18s}
+.fb.on,.fb:hover{background:rgba(201,162,39,.12);border-color:#7a6118;color:#c9a227}
+.lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.lcard{background:#111124;border:1px solid rgba(201,162,39,.2);border-radius:10px;padding:13px 9px;cursor:pointer;text-align:center;transition:all .18s}
+.lcard:hover{border-color:rgba(201,162,39,.5);transform:translateY(-2px)}
+.lsym{font-size:1.5rem;display:block;margin-bottom:5px}
+.lnm{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;color:#c9a227;line-height:1.3}
+.larc{font-size:.68rem;color:#5a4a2a;margin-top:3px;font-style:italic}
+/* JOURNAL */
+.jentry{background:#111124;border:1px solid rgba(201,162,39,.2);border-radius:10px;padding:14px;margin-bottom:11px;cursor:pointer;transition:border-color .18s}
+.jentry:hover{border-color:rgba(201,162,39,.5)}
+.jeh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.jstype{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:#c9a227}
+.jdate{font-size:.78rem;color:#5a4a2a}
+.jq{color:#a89060;font-style:italic;font-size:.92rem;margin-bottom:7px}
+.jchips{display:flex;gap:5px;flex-wrap:wrap}
+.jchip{background:#0d0d1a;border:1px solid rgba(201,162,39,.15);border-radius:20px;padding:2px 7px;font-size:.72rem;color:#a89060}
+.empty{text-align:center;padding:60px 20px;color:#5a4a2a}
+.empty-i{font-size:3rem;display:block;margin-bottom:14px;opacity:.4}
+.empty h3{font-family:'Cinzel',serif;font-size:.95rem;color:#5a4a2a;margin-bottom:7px;letter-spacing:.09em}
+.empty p{font-size:.88rem;font-style:italic}
+/* STATS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}
+.snum{font-family:'Cinzel',serif;font-size:1.9rem;font-weight:700;color:#c9a227}
+.slbl{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:#a89060;margin-top:3px}
+.bar-row{display:flex;align-items:center;gap:10px;padding:9px;border-bottom:1px solid rgba(201,162,39,.1)}
+.bar-rank{font-family:'Cinzel',serif;font-size:.95rem;color:#7a6118;font-weight:700;min-width:22px}
+.bar-wrap{flex:1}
+.bar-name{font-family:'Cinzel',serif;font-size:.72rem;color:#f0e6c8;letter-spacing:.04em}
+.bar{height:4px;background:rgba(201,162,39,.15);border-radius:2px;margin-top:4px}
+.bar-fill{height:100%;background:linear-gradient(90deg,#7a6118,#c9a227);border-radius:2px}
+.bar-cnt{font-family:'Cinzel',serif;font-size:.68rem;color:#a89060;min-width:18px;text-align:right}
+/* ORACLE */
+.cmsg-area{min-height:180px;max-height:320px;overflow-y:auto;margin-bottom:14px}
+.moracle,.muser{margin-bottom:13px;padding:11px 13px;border-radius:11px;font-size:.93rem;line-height:1.65}
+.moracle{background:#161630;border:1px solid rgba(201,162,39,.15);color:#a89060;border-radius:0 11px 11px 11px}
+.moracle .ms2{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.11em;text-transform:uppercase;color:#7a6118;margin-bottom:5px}
+.muser{background:rgba(201,162,39,.1);border:1px solid #7a6118;color:#f0e6c8;text-align:right;border-radius:11px 0 11px 11px}
+.ci-row{display:flex;gap:9px}
+.cinput{flex:1;background:#0d0d1a;border:1px solid rgba(201,162,39,.2);border-radius:8px;color:#f0e6c8;font-family:'Crimson Text',serif;font-size:1rem;padding:9px 13px;outline:none}
+.cinput:focus{border-color:#c9a227}
+/* TOAST */
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(18px);background:#161630;border:1px solid rgba(201,162,39,.5);border-radius:8px;padding:9px 18px;font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:#c9a227;opacity:0;transition:all .28s;z-index:300;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.rh{text-align:center;padding:18px 0 10px}
+.rh h2{font-family:'Cinzel',serif;font-size:1.15rem;color:#c9a227;letter-spacing:.11em}
+.rh p{color:#a89060;font-style:italic;margin-top:7px;font-size:.92rem}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#7a6118;border-radius:2px}
+@media(min-width:480px){.lgrid{grid-template-columns:repeat(4,1fr)}.grid2{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="pg-home" class="page on">
+    <div class="hero">
+      <span class="hero-moon">🌙</span>
+      <h1 class="hero-title">ARCANA</h1>
+      <p class="hero-sub">O espelho do invisível</p>
+      <div class="divider"></div>
+    </div>
+    <div class="box">
+      <label class="box-title">Sua pergunta ou intenção</label>
+      <textarea id="gq" placeholder="Deixe em branco para uma leitura aberta..."></textarea>
+    </div>
+    <div class="box">
+      <div class="box-title">Escolha uma tiragem</div>
+      <div class="grid2" id="sgrid"></div>
+    </div>
+  </div>
+  <div id="pg-reading" class="page">
+    <div id="reading-area"></div>
+  </div>
+  <div id="pg-library" class="page">
+    <div style="text-align:center;padding:28px 0 20px"><h1 style="font-family:'Cinzel',serif;font-size:1.8rem;color:#c9a227;letter-spacing:.12em">Biblioteca</h1><div class="divider"></div><p style="color:#a89060;font-style:italic">78 cartas do Tarot</p></div>
+    <input type="search" id="lsearch" class="lsearch" placeholder="Buscar carta...">
+    <div class="lfilters">
+      <button class="fb on" data-f="all">Todas</button>
+      <button class="fb" data-f="major">Maiores</button>
+      <button class="fb" data-f="cups">Copas</button>
+      <button class="fb" data-f="swords">Espadas</button>
+      <button class="fb" data-f="wands">Paus</button>
+      <button class="fb" data-f="pentacles">Ouros</button>
+    </div>
+    <div class="lgrid" id="lgrid"></div>
+  </div>
+  <div id="pg-journal" class="page">
+    <div style="text-align:center;padding:28px 0 20px"><h1 style="font-family:'Cinzel',serif;font-size:1.8rem;color:#c9a227;letter-spacing:.12em">Diário</h1><div class="divider"></div><p style="color:#a89060;font-style:italic">Suas tiragens salvas</p></div>
+    <div id="jlist"></div>
+  </div>
+  <div id="pg-stats" class="page">
+    <div style="text-align:center;padding:28px 0 20px"><h1 style="font-family:'Cinzel',serif;font-size:1.8rem;color:#c9a227;letter-spacing:.12em">Estatísticas</h1><div class="divider"></div><p style="color:#a89060;font-style:italic">Padrões nas suas leituras</p></div>
+    <div id="stats-c"></div>
+  </div>
+</div>
+
+<nav>
+  <button class="on" id="nb-home" onclick="goPage('home')"><span class="i">🌙</span><span>Tirar</span></button>
+  <button id="nb-library" onclick="goPage('library')"><span class="i">📖</span><span>Biblioteca</span></button>
+  <button id="nb-journal" onclick="goPage('journal')"><span class="i">📜</span><span>Diário</span></button>
+  <button id="nb-stats" onclick="goPage('stats')"><span class="i">✨</span><span>Stats</span></button>
+</nav>
+
+<div class="ov" id="card-modal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="sh"><div class="handle"></div><div id="card-modal-body"></div></div>
+</div>
+<div class="ov" id="j-modal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="sh"><div class="handle"></div><div id="j-modal-body"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TAROT_CARDS = [
+  // ARCANOS MAIORES
+  { id: 0, name: "O Louco", arcana: "major", number: "0", suit: null,
+    keywords: ["liberdade","inocência","aventura","começos"],
+    upright: "Novos começos, inocência, espírito livre, aventura, espontaneidade. O Louco representa um salto de fé, a disposição de embarcar em uma jornada desconhecida com confiança total no universo. Energia jovial, desapego e abertura ao que está por vir.",
+    reversed: "Imprudência, risco desnecessário, imaturidade, irresponsabilidade. Pode indicar que você está tomando decisões sem pensar nas consequências ou se recusando a crescer e assumir responsabilidades.",
+    element: "Ar", planet: "Urano", symbol: "☿" },
+  { id: 1, name: "O Mago", arcana: "major", number: "I", suit: null,
+    keywords: ["vontade","poder","habilidade","manifestação"],
+    upright: "Poder de manifestação, habilidade, vontade, recursos disponíveis. O Mago tem todas as ferramentas necessárias — os quatro elementos à sua disposição. Momento de agir com intenção clara e canalizar sua energia para criar resultados concretos.",
+    reversed: "Manipulação, ilusão, talentos desperdiçados, enganação. Cuidado com promessas vazias ou com alguém que usa suas habilidades de forma enganosa. Pode indicar bloqueio criativo ou falta de direção.",
+    element: "Ar", planet: "Mercúrio", symbol: "☿" },
+  { id: 2, name: "A Sacerdotisa", arcana: "major", number: "II", suit: null,
+    keywords: ["intuição","mistério","sabedoria interior","subconsciência"],
+    upright: "Intuição, sabedoria oculta, subconsciente, paciência. A Alta Sacerdotisa guarda os mistérios do universo. Convite para confiar na intuição, mergulhar no interior e aguardar o momento certo. O que não está visível agora será revelado.",
+    reversed: "Segredos revelados, superficialidade, falta de intuição, informação retida. Pode indicar que você está ignorando sua voz interior ou que verdades ocultas estão prestes a emergir.",
+    element: "Água", planet: "Lua", symbol: "☽" },
+  { id: 3, name: "A Imperatriz", arcana: "major", number: "III", suit: null,
+    keywords: ["fertilidade","abundância","natureza","criatividade"],
+    upright: "Fertilidade, abundância, criatividade, nutrição, natureza. A Imperatriz representa a força feminina criativa, a maternidade e a conexão com a terra. Período de crescimento, abundância material e emocional, criatividade florescendo.",
+    reversed: "Bloqueio criativo, dependência excessiva, sufocamento, falta de crescimento. Pode indicar negligência de si mesmo ou de outros, ou uma relação sufocante que impede o crescimento natural.",
+    element: "Terra", planet: "Vênus", symbol: "♀" },
+  { id: 4, name: "O Imperador", arcana: "major", number: "IV", suit: null,
+    keywords: ["autoridade","estrutura","estabilidade","paternidade"],
+    upright: "Autoridade, estrutura, estabilidade, proteção, liderança. O Imperador representa o princípio masculino, a ordem e a lei. Momento de estabelecer estruturas sólidas, assumir responsabilidades e exercer liderança com sabedoria e firmeza.",
+    reversed: "Tirania, rigidez excessiva, falta de disciplina, controle abusivo. Pode indicar autoritarismo, incapacidade de flexibilizar regras ou uma figura paterna problemática na vida.",
+    element: "Fogo", planet: "Marte", symbol: "♂" },
+  { id: 5, name: "O Hierofante", arcana: "major", number: "V", suit: null,
+    keywords: ["tradição","espiritualidade","conformidade","ensino"],
+    upright: "Tradição, espiritualidade, ensinamentos, conformidade, instituições. O Hierofante guarda o conhecimento sagrado e as tradições. Busca por orientação espiritual, respeito às convenções e aprendizado com mestres e tradições estabelecidas.",
+    reversed: "Desafio às convenções, rebeldia, novas abordagens, dogmatismo. Pode indicar necessidade de questionar dogmas estabelecidos ou libertação de estruturas que não servem mais ao seu crescimento.",
+    element: "Terra", planet: "Touro", symbol: "♉" },
+  { id: 6, name: "Os Enamorados", arcana: "major", number: "VI", suit: null,
+    keywords: ["amor","escolha","harmonia","relacionamentos"],
+    upright: "Amor, harmonia, relacionamentos, escolhas, valores alinhados. Os Enamorados representam não apenas o amor romântico, mas todas as escolhas feitas pelo coração. Alinhamento de valores, união profunda e decisões baseadas no amor.",
+    reversed: "Desarmonia, desequilíbrio, má decisão, ruptura. Pode indicar conflito de valores, relacionamento desequilibrado ou uma escolha importante sendo evitada.",
+    element: "Ar", planet: "Gêmeos", symbol: "♊" },
+  { id: 7, name: "O Carro", arcana: "major", number: "VII", suit: null,
+    keywords: ["vitória","determinação","controle","movimento"],
+    upright: "Vitória, determinação, controle, sucesso através da força de vontade. O Carro representa a capacidade de avançar com determinação, controlando forças opostas. Superação de obstáculos, triunfo e movimento decidido em direção aos objetivos.",
+    reversed: "Falta de controle, agressividade, derrota, obstáculos. Pode indicar que você está sendo conduzido pelas circunstâncias em vez de guiá-las, ou que a força bruta está sendo usada onde seria necessária sutileza.",
+    element: "Água", planet: "Câncer", symbol: "♋" },
+  { id: 8, name: "A Força", arcana: "major", number: "VIII", suit: null,
+    keywords: ["coragem","paciência","compaixão","força interior"],
+    upright: "Força interior, coragem, paciência, compaixão, autocontrole. A Força não é a força bruta, mas a capacidade de dominar impulsos primitivos com amor e gentileza. Momento de enfrentar desafios com calma, paciência e confiança interior.",
+    reversed: "Fraqueza, insegurança, falta de autoconfiança, covardia. Pode indicar que você está duvidando de suas próprias capacidades ou deixando medos primitivos guiarem suas ações.",
+    element: "Fogo", planet: "Leão", symbol: "♌" },
+  { id: 9, name: "O Eremita", arcana: "major", number: "IX", suit: null,
+    keywords: ["solitude","introspecção","sabedoria","busca interior"],
+    upright: "Solitude, introspecção, sabedoria interior, busca espiritual, orientação. O Eremita retira-se do mundo para encontrar a luz interior. Momento de reflexão profunda, busca por respostas internas e conexão com a sabedoria que vem do silêncio.",
+    reversed: "Isolamento excessivo, solidão indesejada, reclusão, rejeição da orientação. Pode indicar que o isolamento está se tornando prejudicial ou que há resistência em buscar ou aceitar ajuda.",
+    element: "Terra", planet: "Virgem", symbol: "♍" },
+  { id: 10, name: "A Roda da Fortuna", arcana: "major", number: "X", suit: null,
+    keywords: ["destino","ciclos","mudança","sorte"],
+    upright: "Destino, ciclos da vida, boa sorte, ponto de virada. A Roda da Fortuna gira constantemente — momentos de alta e baixa fazem parte do ciclo da vida. Aceitação das mudanças inevitáveis e confiança de que tudo gira a seu favor.",
+    reversed: "Má sorte, resistência à mudança, ciclos negativos, falta de controle. Pode indicar que você está lutando contra forças maiores ou que está preso em padrões que precisam ser quebrados.",
+    element: "Fogo", planet: "Júpiter", symbol: "♃" },
+  { id: 11, name: "A Justiça", arcana: "major", number: "XI", suit: null,
+    keywords: ["justiça","verdade","equilíbrio","causa e efeito"],
+    upright: "Justiça, verdade, equilíbrio, lei, causa e efeito. A Justiça representa a lei cármica e a responsabilidade por nossas ações. Momento de tomar decisões baseadas em fatos, aceitar as consequências de escolhas passadas e buscar o equilíbrio.",
+    reversed: "Injustiça, desonestidade, falta de responsabilidade, julgamento desequilibrado. Pode indicar que a justiça está sendo negada ou que você está evitando responsabilidades pelas suas ações.",
+    element: "Ar", planet: "Libra", symbol: "♎" },
+  { id: 12, name: "O Enforcado", arcana: "major", number: "XII", suit: null,
+    keywords: ["suspensão","sacrifício","nova perspectiva","pausa"],
+    upright: "Suspensão, sacrifício, nova perspectiva, entrega, pausa necessária. O Enforcado escolheu ser suspenso para ver o mundo de outro ângulo. Momento de pause, rendição ao que não pode ser controlado e abertura para novas perspectivas.",
+    reversed: "Atraso, resistência, martirio desnecessário, estagnação. Pode indicar que o sacrifício está sendo feito em vão ou que há resistência em deixar ir o que precisa ser liberado.",
+    element: "Água", planet: "Netuno", symbol: "♆" },
+  { id: 13, name: "A Morte", arcana: "major", number: "XIII", suit: null,
+    keywords: ["transformação","encerramento","transição","renovação"],
+    upright: "Transformação, encerramento, transição, renovação, mudança inevitável. A Morte raramente indica morte literal — representa o fim de um ciclo e o início de outro. Liberação do passado, transformação profunda e renascimento para algo novo.",
+    reversed: "Resistência à mudança, estagnação, medo da transformação, fim retardado. Pode indicar apego excessivo ao passado ou incapacidade de deixar ir o que já não serve.",
+    element: "Água", planet: "Escorpião", symbol: "♏" },
+  { id: 14, name: "A Temperança", arcana: "major", number: "XIV", suit: null,
+    keywords: ["equilíbrio","moderação","paciência","propósito"],
+    upright: "Equilíbrio, moderação, paciência, propósito, alquimia. A Temperança mistura com maestria elementos aparentemente opostos. Momento de encontrar o meio-termo, ser paciente e trabalhar em harmonia para alcançar resultados duradouros.",
+    reversed: "Desequilíbrio, excesso, falta de moderação, conflito interno. Pode indicar que você está indo a extremos ou que há falta de harmonia entre aspectos importantes da vida.",
+    element: "Fogo", planet: "Sagitário", symbol: "♐" },
+  { id: 15, name: "O Diabo", arcana: "major", number: "XV", suit: null,
+    keywords: ["aprisionamento","vícios","materialismo","sombra"],
+    upright: "Aprisionamento, vícios, materialismo, ilusão, sombra. O Diabo representa os padrões que nos aprisionam — mas as correntes são soltas. Reconhecimento de vícios, dependências e padrões de pensamento negativos que limitam a liberdade.",
+    reversed: "Libertação, reconhecimento de padrões negativos, independência, rompimento de vícios. Momento de libertar-se das correntes que você mesmo criou e escolher um caminho mais saudável.",
+    element: "Terra", planet: "Capricórnio", symbol: "♑" },
+  { id: 16, name: "A Torre", arcana: "major", number: "XVI", suit: null,
+    keywords: ["ruptura","revelação","caos","transformação súbita"],
+    upright: "Ruptura, revelação súbita, caos, transformação, destruição do falso. A Torre cai quando as fundações são falsas. Mudanças drásticas e inesperadas que, apesar do caos inicial, liberam espaço para algo mais verdadeiro e sólido ser construído.",
+    reversed: "Resistência à transformação necessária, catástrofe evitada, libertação interna. Pode indicar que você está adiando uma mudança inevitável ou que uma crise interna está sendo processada.",
+    element: "Fogo", planet: "Marte", symbol: "♂" },
+  { id: 17, name: "A Estrela", arcana: "major", number: "XVII", suit: null,
+    keywords: ["esperança","inspiração","renovação","fé"],
+    upright: "Esperança, inspiração, renovação espiritual, serenidade, fé. Após a tempestade, a Estrela brilha. Momento de renovação, cura profunda e reconexão com o propósito de vida. A luz guia mesmo nas noites mais escuras.",
+    reversed: "Desesperança, falta de fé, desconexão espiritual, pessimismo. Pode indicar que a fé está abalada ou que há dificuldade em ver a luz no fim do túnel.",
+    element: "Ar", planet: "Aquário", symbol: "♒" },
+  { id: 18, name: "A Lua", arcana: "major", number: "XVIII", suit: null,
+    keywords: ["ilusão","subconsciente","medo","intuição profunda"],
+    upright: "Ilusão, subconsciênte, medo, confusão, intuição profunda. A Lua ilumina o que está oculto nas sombras. Momento de prestar atenção aos sonhos, medos e intuições mais profundas. Nem tudo é o que parece ser.",
+    reversed: "Confusão dissipando, medo liberado, clareza chegando, enganos revelados. Pode indicar que as ilusões estão se dissipando ou que medos profundos estão sendo reconhecidos e processados.",
+    element: "Água", planet: "Peixes", symbol: "♓" },
+  { id: 19, name: "O Sol", arcana: "major", number: "XIX", suit: null,
+    keywords: ["sucesso","vitalidade","alegria","clareza"],
+    upright: "Sucesso, vitalidade, alegria, clareza, otimismo, triunfo. O Sol brilha sem ambiguidade — traz luz, calor e vida. Período de grande otimismo, sucesso nos empreendimentos, saúde e alegria genuína.",
+    reversed: "Pessimismo, falta de entusiasmo, sucesso temporário, energia baixa. Pode indicar que o brilho interno está temporariamente obscurecido ou que há excessiva modéstia impedindo reconhecer os próprios sucessos.",
+    element: "Fogo", planet: "Sol", symbol: "☀" },
+  { id: 20, name: "O Julgamento", arcana: "major", number: "XX", suit: null,
+    keywords: ["julgamento","absolvição","renovação","chamado"],
+    upright: "Julgamento, absolvição, renovação, chamado interior, despertar. O Julgamento convoca para uma avaliação honesta do passado e um renascimento. Momento de atender ao chamado interior, fazer as pazes com o passado e abraçar uma nova versão de si mesmo.",
+    reversed: "Autocrítica excessiva, ignorar o chamado, arrependimento, julgamento injusto. Pode indicar que você está sendo muito duro consigo mesmo ou ignorando um chamado importante de transformação.",
+    element: "Fogo", planet: "Plutão", symbol: "♇" },
+  { id: 21, name: "O Mundo", arcana: "major", number: "XXI", suit: null,
+    keywords: ["conclusão","integração","realização","totalidade"],
+    upright: "Conclusão, integração, realização, totalidade, sucesso completo. O Mundo representa a conclusão bem-sucedida de um ciclo importante. Sensação de completude, realização de objetivos e integração de todas as experiências vividas.",
+    reversed: "Ciclo incompleto, atraso, falta de conclusão, busca da perfeição. Pode indicar que algo importante ainda não foi finalizado ou que há resistência em aceitar a completude do caminho percorrido.",
+    element: "Terra", planet: "Saturno", symbol: "♄" },
+
+  // COPAS (1-14)
+  { id: 22, name: "Ás de Copas", arcana: "minor", number: "1", suit: "cups",
+    keywords: ["novo amor","emoções","intuição","início emocional"],
+    upright: "Novo começo emocional, amor abundante, intuição, conexão espiritual. O Ás de Copas transborda com possibilidades emocionais. Abertura do coração para o amor, criatividade emocional e conexão profunda com o divino.",
+    reversed: "Amor bloqueado, emoções reprimidas, vazio emocional. Dificuldade em abrir o coração ou conectar-se com os próprios sentimentos.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 23, name: "Dois de Copas", arcana: "minor", number: "2", suit: "cups",
+    keywords: ["união","parceria","amor mútuo","conexão"],
+    upright: "União, parceria romântica, amor mútuo, conexão profunda, compromisso. Dois corações que se encontram em harmonia. Relacionamento equilibrado baseado em respeito mútuo e afeto genuíno.",
+    reversed: "Desequilíbrio no relacionamento, separação, ruptura, incompatibilidade. Pode indicar conflito ou desencontro entre duas pessoas.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 24, name: "Três de Copas", arcana: "minor", number: "3", suit: "cups",
+    keywords: ["celebração","amizade","comunidade","alegria"],
+    upright: "Celebração, amizade, comunidade, alegria compartilhada, abundância. Momento de festejo com pessoas queridas, conquistas celebradas em grupo e apoio mútuo.",
+    reversed: "Excessos, isolamento, triângulo amoroso, fofoca. Cuidado com excesso de festas ou conflitos dentro do grupo.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 25, name: "Quatro de Copas", arcana: "minor", number: "4", suit: "cups",
+    keywords: ["contemplação","apatia","reavaliação","descontentamento"],
+    upright: "Contemplação, apatia, reavaliação, introspecção, tédio emocional. Período de questionamento interior sobre o que realmente importa. Uma oportunidade pode estar sendo ignorada.",
+    reversed: "Renovação de interesse, motivação, aproveitando oportunidades. Saída da letargia e abertura para novas experiências.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 26, name: "Cinco de Copas", arcana: "minor", number: "5", suit: "cups",
+    keywords: ["luto","perda","arrependimento","tristeza"],
+    upright: "Luto, perda, arrependimento, foco no negativo. Momento de tristeza por algo perdido, mas há ainda copos em pé — o que permanece tem valor.",
+    reversed: "Aceitação, seguir em frente, perdão, recuperação. Capacidade de encontrar paz após a perda.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 27, name: "Seis de Copas", arcana: "minor", number: "6", suit: "cups",
+    keywords: ["nostalgia","infância","inocência","passado"],
+    upright: "Nostalgia, memórias da infância, inocência, presentes do passado. Reconexão com alegrias simples e lembranças que nutrem a alma.",
+    reversed: "Preso no passado, ingenuidade, idealização do passado. Dificuldade em avançar por apego a memórias.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 28, name: "Sete de Copas", arcana: "minor", number: "7", suit: "cups",
+    keywords: ["ilusão","fantasias","escolhas","desejos"],
+    upright: "Ilusões, fantasias, muitas escolhas, sonhos, imaginação. Período de muitas possibilidades — mas cuidado para não se perder em devaneios.",
+    reversed: "Clareza, decisão, livre de ilusões, alinhamento. Capacidade de ver as coisas como realmente são e fazer escolhas conscientes.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 29, name: "Oito de Copas", arcana: "minor", number: "8", suit: "cups",
+    keywords: ["abandono","busca","partir","decepção"],
+    upright: "Abandono do que não serve, busca por significado, partir em jornada espiritual. Coragem de deixar para trás o que não mais satisfaz.",
+    reversed: "Medo de partir, retorno, estagnação, apego. Dificuldade em deixar ir situações que já não nutrem.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 30, name: "Nove de Copas", arcana: "minor", number: "9", suit: "cups",
+    keywords: ["satisfação","realização","desejo","gratidão"],
+    upright: "Satisfação, realização de desejos, gratidão, contentamento. A carta dos desejos realizados — momento de grande satisfação emocional e material.",
+    reversed: "Insatisfação, materialismo, desejo excessivo, sonhos não realizados. Apesar das conquistas externas, falta algo internamente.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 31, name: "Dez de Copas", arcana: "minor", number: "10", suit: "cups",
+    keywords: ["felicidade","família","harmonia","realização"],
+    upright: "Felicidade familiar, harmonia, realização emocional completa, lar. O arco-íris após a chuva — alegria duradoura e relacionamentos harmoniosos.",
+    reversed: "Dissonância familiar, valores desalinhados, harmonia perturbada. Tensões no lar ou dificuldades em criar a família harmoniosa desejada.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 32, name: "Pajem de Copas", arcana: "minor", number: "11", suit: "cups",
+    keywords: ["curiosidade","mensagem emocional","sonhos","sensibilidade"],
+    upright: "Mensageiro emocional, curiosidade, criatividade, sensibilidade. Traz notícias emocionais, um convite para explorar os sentimentos com abertura.",
+    reversed: "Imaturidade emocional, manipulação, frivolidade. Pode indicar irresponsabilidade emocional ou um jovem problemático.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 33, name: "Cavaleiro de Copas", arcana: "minor", number: "12", suit: "cups",
+    keywords: ["romance","charme","idealismo","proposta"],
+    upright: "Romance, charme, idealismo, proposta, chamado do coração. O cavaleiro segue o coração sem hesitar. Convites românticos e propostas que vêm com sinceridade.",
+    reversed: "Capricho, ciúme, moodiness, decepções. Romantismo excessivo que pode levar a decepções ou comportamento caprichoso.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 34, name: "Rainha de Copas", arcana: "minor", number: "13", suit: "cups",
+    keywords: ["compaixão","intuição","cura","empatia"],
+    upright: "Compaixão, intuição, cura, empatia profunda, nutrição emocional. A rainha cuida com sabedoria emocional, intuitiva e amorosa.",
+    reversed: "Dependência emocional, insegurança, manipulação emocional. Tendência a absorver emoções dos outros de forma não saudável.",
+    element: "Água", planet: null, symbol: "🏆" },
+  { id: 35, name: "Rei de Copas", arcana: "minor", number: "14", suit: "cups",
+    keywords: ["maturidade emocional","diplomacia","sabedoria","equilíbrio"],
+    upright: "Maturidade emocional, diplomacia, sabedoria, equilíbrio entre emoção e razão. Líder que governa com o coração e a mente em harmonia.",
+    reversed: "Manipulação emocional, instabilidade, frieza. Pode indicar repressão emocional ou uso das emoções para manipular outros.",
+    element: "Água", planet: null, symbol: "🏆" },
+
+  // ESPADAS (1-14)
+  { id: 36, name: "Ás de Espadas", arcana: "minor", number: "1", suit: "swords",
+    keywords: ["clareza","verdade","pensamento","novos começos mentais"],
+    upright: "Clareza mental, verdade, novos começos intelectuais, corte através da confusão. A espada da mente corta o véu das ilusões. Momento de grande clareza e comunicação direta.",
+    reversed: "Confusão, injustiça, verdade cruel, caos mental. Falta de clareza ou uso da verdade de forma destrutiva.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 37, name: "Dois de Espadas", arcana: "minor", number: "2", suit: "swords",
+    keywords: ["bloqueio","impasse","decisão difícil","negação"],
+    upright: "Impasse, decisão difícil, bloqueio mental, equilíbrio precário. A pessoa de olhos vendados recusa-se a ver a verdade. Necessidade de enfrentar a situação e tomar uma decisão.",
+    reversed: "Confusão, sobrecarga de informação, decisão inevitável. As vendas estão caindo — é hora de ver e decidir.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 38, name: "Três de Espadas", arcana: "minor", number: "3", suit: "swords",
+    keywords: ["tristeza","dor de coração","traição","sofrimento"],
+    upright: "Tristeza, dor de coração, traição, sofrimento, separação. A dor é real e precisa ser sentida para ser curada. Reconhecimento honesto do sofrimento.",
+    reversed: "Recuperação, perdão, cura de dores antigas. O processo de cura está em andamento após grande sofrimento.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 39, name: "Quatro de Espadas", arcana: "minor", number: "4", suit: "swords",
+    keywords: ["descanso","recuperação","contemplação","retiro"],
+    upright: "Descanso, recuperação, contemplação, retiro. Após batalhas intensas, o guerreiro precisa descansar. Pausa necessária para restaurar as forças.",
+    reversed: "Exaustão, burnout, retorno à ação antes do tempo, inquietação. Dificuldade em descansar ou necessidade urgente de retornar à ação.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 40, name: "Cinco de Espadas", arcana: "minor", number: "5", suit: "swords",
+    keywords: ["conflito","derrota","traição","vitória vazia"],
+    upright: "Conflito, derrota, vitória vazia, desonra, traição. Vitória conquistada com táticas desonestas ou às custas de relacionamentos importantes.",
+    reversed: "Reconciliação, arrependimento, passando pelo conflito. Capacidade de superar conflitos passados e buscar a paz.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 41, name: "Seis de Espadas", arcana: "minor", number: "6", suit: "swords",
+    keywords: ["transição","movimento","cura","saindo da turbulência"],
+    upright: "Transição, movimento para águas mais calmas, cura gradual, passagem. Saindo de um período difícil em direção a maior tranquilidade.",
+    reversed: "Resistência à mudança, bagagem emocional, retorno de problemas. Dificuldade em deixar o passado para trás.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 42, name: "Sete de Espadas", arcana: "minor", number: "7", suit: "swords",
+    keywords: ["engano","estratégia","furtividade","evasão"],
+    upright: "Engano, estratégia, furtividade, evasão, independência. Às vezes é necessário ser estratégico e sutil para alcançar objetivos.",
+    reversed: "Confissão, arrependimento, impostor revelado, verdade à tona. Segredos sendo revelados ou necessidade de encarar a verdade.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 43, name: "Oito de Espadas", arcana: "minor", number: "8", suit: "swords",
+    keywords: ["aprisionamento","restrição","pensamentos limitantes","vitimismo"],
+    upright: "Aprisionamento mental, restrição, pensamentos limitantes, vitimismo. As restrições são em grande parte criadas pela mente — a liberdade está mais próxima do que parece.",
+    reversed: "Libertação, autolibertação, novo ponto de vista, empoderamento. Reconhecimento de que as amarras eram mentais e capacidade de se libertar.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 44, name: "Nove de Espadas", arcana: "minor", number: "9", suit: "swords",
+    keywords: ["ansiedade","pesadelos","preocupação","angústia"],
+    upright: "Ansiedade, pesadelos, preocupação excessiva, angústia noturna. Os piores medos da mente acordada às 3 da manhã. Muitas vezes a situação não é tão terrível quanto parece.",
+    reversed: "Esperança, saída da dificuldade, alívio, fim da preocupação. O alvorecer após a noite mais escura está chegando.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 45, name: "Dez de Espadas", arcana: "minor", number: "10", suit: "swords",
+    keywords: ["fim doloroso","traição","colapso","novo amanhecer"],
+    upright: "Fim doloroso, traição, colapso, mas também novo amanhecer. O pior já passou — a única direção agora é para cima.",
+    reversed: "Resistência ao inevitável, recuperação, sobrevivência. A dificuldade está sendo superada ou há resistência em aceitar um fim necessário.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 46, name: "Pajem de Espadas", arcana: "minor", number: "11", suit: "swords",
+    keywords: ["curiosidade","vigilância","pensamento rápido","novidade"],
+    upright: "Mente curiosa, vigilância, pensamento rápido, mensagens, novidades. Jovem espírito intelectual pronto para aprender e comunicar.",
+    reversed: "Fofoca, insensibilidade, falta de planejamento, impulsividade verbal. Palavras sem filtro que causam danos.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 47, name: "Cavaleiro de Espadas", arcana: "minor", number: "12", suit: "swords",
+    keywords: ["ação","ambição","coragem","impulsividade"],
+    upright: "Ação rápida, ambição, coragem, determinação, inteligência em movimento. Parte em grande velocidade em direção aos objetivos, às vezes sem pensar nas consequências.",
+    reversed: "Impulsividade destrutiva, agressão verbal, impaciência. Ação antes da reflexão causando danos colaterais.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 48, name: "Rainha de Espadas", arcana: "minor", number: "13", suit: "swords",
+    keywords: ["independência","julgamento","clareza","comunicação direta"],
+    upright: "Independência, julgamento claro, comunicação direta, sabedoria através da experiência. Mente afiada que combina intelecto com experiência de vida.",
+    reversed: "Frieza, crueldade, ressentimento, isolamento. Inteligência usada de forma fria e distante.",
+    element: "Ar", planet: null, symbol: "⚔" },
+  { id: 49, name: "Rei de Espadas", arcana: "minor", number: "14", suit: "swords",
+    keywords: ["autoridade intelectual","lógica","clareza","decisão"],
+    upright: "Autoridade intelectual, lógica, clareza mental, decisão firme, verdade. Governa com a mente — justo, direto e analítico.",
+    reversed: "Manipulação, tirania mental, crueldade, desonestidade. Inteligência usada para controlar ou manipular.",
+    element: "Ar", planet: null, symbol: "⚔" },
+
+  // PAUS (1-14)
+  { id: 50, name: "Ás de Paus", arcana: "minor", number: "1", suit: "wands",
+    keywords: ["inspiração","potencial","novos começos","criatividade"],
+    upright: "Inspiração, potencial criativo, novos começos, energia vital. A centelha que acende a chama. Potencial bruto esperando ser direcionado para algo grande.",
+    reversed: "Atrasos, falta de motivação, energia bloqueada. A faísca está lá mas ainda não encontrou o momento certo para acender.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 51, name: "Dois de Paus", arcana: "minor", number: "2", suit: "wands",
+    keywords: ["planejamento","progresso","decisões","expansão"],
+    upright: "Planejamento, progresso, decisões futuras, expansão, visão de longo prazo. Em pé sobre a torre, olhando para o horizonte — o mundo está aos seus pés.",
+    reversed: "Medo do desconhecido, falta de planejamento, planos que desmoronam. Hesitação diante das possibilidades.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 52, name: "Três de Paus", arcana: "minor", number: "3", suit: "wands",
+    keywords: ["expansão","visão","empreendimento","progresso"],
+    upright: "Expansão, visão de longo alcance, empreendimento, aguardando resultados. Os navios estão no mar — os planos foram lançados e agora é hora de esperar os resultados.",
+    reversed: "Atrasos inesperados, obstáculos, falta de foresight. Planos que enfrentam dificuldades ou retornam sem sucesso.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 53, name: "Quatro de Paus", arcana: "minor", number: "4", suit: "wands",
+    keywords: ["celebração","lar","comunidade","estabilidade"],
+    upright: "Celebração, lar, comunidade, estabilidade, festividade. Momento de comemorar conquistas com aqueles que amamos, senso de pertencimento.",
+    reversed: "Conflito doméstico, instabilidade no lar, falta de suporte. Tensões que perturbam a harmonia do lar.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 54, name: "Cinco de Paus", arcana: "minor", number: "5", suit: "wands",
+    keywords: ["conflito","competição","discordância","caos"],
+    upright: "Conflito, competição, discordância, caos produtivo. Diferentes pontos de vista em choque — pode ser desafiador mas também estimulante.",
+    reversed: "Evitando conflito, resolução de disputas, encontrando harmonia. Conflitos se resolvendo ou necessidade de evitar confrontos desnecessários.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 55, name: "Seis de Paus", arcana: "minor", number: "6", suit: "wands",
+    keywords: ["vitória","reconhecimento","progresso","autoconfiança"],
+    upright: "Vitória, reconhecimento público, progresso, autoconfiança, triunfo. O herói retorna vitorioso — momento de celebrar conquistas e receber reconhecimento merecido.",
+    reversed: "Ego inflado, queda de poder, falta de reconhecimento. Sucesso que traz arrogância ou vitória que passa despercebida.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 56, name: "Sete de Paus", arcana: "minor", number: "7", suit: "wands",
+    keywords: ["defesa","perseverança","desafio","posição"],
+    upright: "Defesa da posição, perseverança, desafio, manter o terreno conquistado. Em posição elevada mas sendo desafiado — é necessário defender o que foi conquistado.",
+    reversed: "Capitulação, exaustão, rendição, ceder desnecessariamente. Dificuldade em manter a posição ou ceder por cansaço.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 57, name: "Oito de Paus", arcana: "minor", number: "8", suit: "wands",
+    keywords: ["movimento rápido","progresso","notícias","alinhamento"],
+    upright: "Movimento rápido, progresso acelerado, notícias chegando, alinhamento de forças. Tudo está em movimento — as coisas estão se acelerando em direção ao objetivo.",
+    reversed: "Atrasos, frustração, falta de alinhamento, comunicação bloqueada. Forças que deveriam estar alinhadas estão em descompasso.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 58, name: "Nove de Paus", arcana: "minor", number: "9", suit: "wands",
+    keywords: ["resiliência","perseverança","testado","guardar forças"],
+    upright: "Resiliência, perseverança, defensor guardando forças. Quase lá — apesar dos ferimentos, é necessário continuar. A perseverança será recompensada.",
+    reversed: "Exaustão extrema, paranoia, teimosia, desistência. Forças esgotadas ou recusa em descansar quando necessário.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 59, name: "Dez de Paus", arcana: "minor", number: "10", suit: "wands",
+    keywords: ["sobrecarga","responsabilidade","fardo","completar"],
+    upright: "Sobrecarga, responsabilidade excessiva, fardo, mas quase chegando. Carregando mais do que deveria — mas o destino está próximo.",
+    reversed: "Deixar ir, delegação, encontrando soluções para o fardo. Necessidade de redistribuir responsabilidades ou simplificar.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 60, name: "Pajem de Paus", arcana: "minor", number: "11", suit: "wands",
+    keywords: ["entusiasmo","exploração","descoberta","potencial"],
+    upright: "Entusiasmo, exploração, potencial, mensagem inspiradora. Jovem espírito cheio de energia criativa pronto para novas aventuras.",
+    reversed: "Novidade sem substância, falta de direção, energia desperdiçada. Entusiasmo sem foco ou follow-through.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 61, name: "Cavaleiro de Paus", arcana: "minor", number: "12", suit: "wands",
+    keywords: ["energia","paixão","aventura","impulsividade"],
+    upright: "Energia, paixão, aventura, charme, busca por emoções. Vive intensamente no presente, seguindo a paixão onde ela levar.",
+    reversed: "Impulsividade, frustração, aventuras mal planejadas. Energia sem direção causando caos.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 62, name: "Rainha de Paus", arcana: "minor", number: "13", suit: "wands",
+    keywords: ["confiança","coragem","paixão","liderança natural"],
+    upright: "Confiança, coragem, paixão, liderança natural, magnetismo. Mulher de presença poderosa que inspira com sua energia vital e confiança.",
+    reversed: "Insegurança, introversão repentina, ciúme, demandas excessivas. A confiança natural se transformando em comportamento controlador.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+  { id: 63, name: "Rei de Paus", arcana: "minor", number: "14", suit: "wands",
+    keywords: ["visão","liderança","empreendedorismo","inspiração"],
+    upright: "Visão, liderança inspiradora, empreendedorismo, honra. Líder visionário que inspira através da paixão e do exemplo.",
+    reversed: "Impetuosidade, dominação, arrogância, expectativas impossíveis. Liderança que se torna tiranicamente exigente.",
+    element: "Fogo", planet: null, symbol: "🔥" },
+
+  // OUROS (1-14)
+  { id: 64, name: "Ás de Ouros", arcana: "minor", number: "1", suit: "pentacles",
+    keywords: ["manifestação","prosperidade","oportunidade","abundância"],
+    upright: "Manifestação, prosperidade, oportunidade material, novo começo financeiro. A semente dourada de toda abundância. Momento propício para iniciar projetos materiais.",
+    reversed: "Oportunidade perdida, falta de planejamento, instabilidade financeira. A semente não encontra solo fértil.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 65, name: "Dois de Ouros", arcana: "minor", number: "2", suit: "pentacles",
+    keywords: ["equilíbrio","adaptação","malabarismo","fluxo"],
+    upright: "Equilíbrio, adaptação, malabarismo de responsabilidades, fluxo. Dançando com as mudanças da vida — manter o equilíbrio enquanto múltiplas demandas competem por atenção.",
+    reversed: "Desequilíbrio, desorganização, sobrecarga, problemas financeiros. Muitas bolas no ar e algumas estão caindo.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 66, name: "Três de Ouros", arcana: "minor", number: "3", suit: "pentacles",
+    keywords: ["trabalho em equipe","habilidade","colaboração","aprendizado"],
+    upright: "Trabalho em equipe, habilidade artesanal, colaboração, aprendizado. O mestre trabalha com outros — combinação de talentos para criar algo maior.",
+    reversed: "Falta de trabalho em equipe, mediocridade, falta de esforço. Trabalho isolado ou falta de compromisso com a qualidade.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 67, name: "Quatro de Ouros", arcana: "minor", number: "4", suit: "pentacles",
+    keywords: ["segurança","controle","conservadorismo","possessividade"],
+    upright: "Segurança financeira, conservadorismo, controle, possessividade. Segurando firmemente o que foi conquistado — mas cuidado para não deixar o apego bloquear o crescimento.",
+    reversed: "Generosidade, deixar ir, instabilidade financeira. Liberação do apego excessivo ou perda de controle financeiro.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 68, name: "Cinco de Ouros", arcana: "minor", number: "5", suit: "pentacles",
+    keywords: ["dificuldade financeira","isolamento","pobreza","exclusão"],
+    upright: "Dificuldade financeira, isolamento, pobreza, exclusão. Período difícil materialmente — mas o abrigo e o suporte estão disponíveis para quem busca.",
+    reversed: "Recuperação financeira, fim de dificuldades, ajuda chegando. Saindo do período de escassez em direção à estabilidade.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 69, name: "Seis de Ouros", arcana: "minor", number: "6", suit: "pentacles",
+    keywords: ["generosidade","dar e receber","caridade","equilíbrio"],
+    upright: "Generosidade, dar e receber, caridade, distribuição equitativa. O ciclo saudável de dar e receber — abundância que flui.",
+    reversed: "Strings attached, doação com expectativas, dívida, ganância. Generosidade que esconde controle ou desequilíbrio na troca.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 70, name: "Sete de Ouros", arcana: "minor", number: "7", suit: "pentacles",
+    keywords: ["paciência","investimento","crescimento","avaliação"],
+    upright: "Paciência, investimento de longo prazo, crescimento, avaliação do progresso. O fazendeiro contempla sua colheita — alguns investimentos levam tempo para dar frutos.",
+    reversed: "Impaciência, falta de crescimento, recompensas tardias, desperdício. Investimentos que não estão rendendo ou falta de visão de longo prazo.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 71, name: "Oito de Ouros", arcana: "minor", number: "8", suit: "pentacles",
+    keywords: ["diligência","artesanato","aprendizado","dedicação"],
+    upright: "Diligência, artesanato, aprendizado, dedicação ao trabalho. Aperfeiçoamento das habilidades através da prática constante — a excelência vem da dedicação.",
+    reversed: "Falta de foco, mediocridade, perfeccionismo paralisante. Trabalho sem atenção à qualidade ou obsessão com perfeição.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 72, name: "Nove de Ouros", arcana: "minor", number: "9", suit: "pentacles",
+    keywords: ["abundância","luxo","independência","autossuficiência"],
+    upright: "Abundância, luxo, independência, autossuficiência, prazer nos frutos do trabalho. Desfrutando dos resultados de esforço e disciplina — bem merecido.",
+    reversed: "Ganho fácil, sucesso superficial, dependência. Aparência de abundância sem a substância por baixo.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 73, name: "Dez de Ouros", arcana: "minor", number: "10", suit: "pentacles",
+    keywords: ["riqueza","herança","família","legado"],
+    upright: "Riqueza duradoura, herança, família, legado, estabilidade intergeracional. A realização completa no plano material — abundância que passa para as próximas gerações.",
+    reversed: "Dívidas familiares, conflitos por herança, instabilidade financeira. Riqueza que traz divisão ou perda do que foi construído.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 74, name: "Pajem de Ouros", arcana: "minor", number: "11", suit: "pentacles",
+    keywords: ["estudo","oportunidade","confiabilidade","aprendizado prático"],
+    upright: "Estudo, oportunidade material, confiabilidade, aprendizado prático. Jovem dedicado ao aprendizado com os pés no chão.",
+    reversed: "Falta de progresso, procrastinação, foco excessivo no material. Dificuldade em traduzir aprendizado em ação.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 75, name: "Cavaleiro de Ouros", arcana: "minor", number: "12", suit: "pentacles",
+    keywords: ["trabalho duro","rotina","confiabilidade","persistência"],
+    upright: "Trabalho duro, rotina, confiabilidade, persistência, resultado tangível. Avança devagar mas com certeza — a perseverança leva ao resultado.",
+    reversed: "Tédio, rotina sufocante, perfeccionismo, estagnação. Excesso de cautela que impede o avanço.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 76, name: "Rainha de Ouros", arcana: "minor", number: "13", suit: "pentacles",
+    keywords: ["nutrição","praticidade","abundância","segurança"],
+    upright: "Nutrição, praticidade, abundância compartilhada, segurança, generosidade. A rainha que cuida com recursos práticos e amor concreto.",
+    reversed: "Desequilíbrio trabalho-vida, insegurança financeira, sufocamento. Materialismo excessivo ou negligência do aspecto emocional.",
+    element: "Terra", planet: null, symbol: "⭐" },
+  { id: 77, name: "Rei de Ouros", arcana: "minor", number: "14", suit: "pentacles",
+    keywords: ["abundância","prosperidade","segurança","liderança prática"],
+    upright: "Abundância, prosperidade, segurança, liderança prática, sucesso material. Rei que governa com sabedoria prática e cria prosperidade duradoura.",
+    reversed: "Materialismo, ganância, obstinação, fracasso nos negócios. Riqueza sem propósito ou uso abusivo do poder material.",
+    element: "Terra", planet: null, symbol: "⭐" },
+];
+
+
+var SPREADS = [
+  {id:'single', name:'Carta do Dia', icon:'🌟', desc:'Orientação para o momento', count:'1 carta', pos:['A mensagem do momento']},
+  {id:'three', name:'Passado · Presente · Futuro', icon:'⏳', desc:'O fluxo do tempo', count:'3 cartas', pos:['Passado','Presente','Futuro']},
+  {id:'celtic', name:'Cruz Celta', icon:'✝️', desc:'Análise profunda em dez perspectivas', count:'10 cartas', pos:['A situação','Influência cruzada','Base / raiz','Passado recente','Possível futuro','Influências externas','Sua atitude','Como os outros te veem','Esperanças e medos','Resultado final']},
+  {id:'horseshoe', name:'Ferradura', icon:'🧲', desc:'Sete cartas em arco revelador', count:'7 cartas', pos:['Passado distante','Passado recente','Presente','Influências externas','Expectativas','Caminho recomendado','Resultado provável']},
+  {id:'relationship', name:'Relacionamento', icon:'💞', desc:'A dinâmica entre duas pessoas', count:'7 cartas', pos:['Você agora','A outra pessoa','A conexão','O que você quer','O que o outro quer','Ponto de conflito','Potencial']},
+  {id:'decision', name:'Decisão', icon:'⚖️', desc:'Avaliar dois caminhos distintos', count:'6 cartas', pos:['Situação atual','Caminho A: essência','Caminho A: consequência','Caminho B: essência','Caminho B: consequência','Conselho das cartas']},
+  {id:'year', name:'Ano Pessoal', icon:'📅', desc:'Os doze meses do seu ano', count:'12 cartas', pos:['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']}
+];
+
+var CUR = null;
+var LIB_FILTER = 'all';
+var ORACLE_HIST = [];
+
+function save(r){ try{ localStorage.setItem('arcana', JSON.stringify(r)); }catch(e){} }
+function load(){ try{ return JSON.parse(localStorage.getItem('arcana')||'[]'); }catch(e){ return []; } }
+
+function goPage(name) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('on'); });
+  var pg = document.getElementById('pg-'+name);
+  if(pg){ pg.classList.add('on'); }
+  var nb = document.getElementById('nb-'+name);
+  if(nb){ nb.classList.add('on'); }
+  if(name === 'journal'){ renderJournal(); }
+  if(name === 'stats'){ renderStats(); }
+  if(name === 'library'){ renderLibrary(); }
+}
+
+function symOf(c) {
+  if(c.arcana === 'major') return c.symbol || '✦';
+  if(c.suit === 'cups') return '🏆';
+  if(c.suit === 'swords') return '⚔';
+  if(c.suit === 'wands') return '🔥';
+  if(c.suit === 'pentacles') return '⭐';
+  return '✦';
+}
+
+function suitLabel(s) {
+  if(s === 'cups') return 'Copas';
+  if(s === 'swords') return 'Espadas';
+  if(s === 'wands') return 'Paus';
+  if(s === 'pentacles') return 'Ouros';
+  return s || '';
+}
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  setTimeout(function(){ t.classList.remove('on'); }, 2400);
+}
+
+function fmtDate(iso) {
+  try { return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch(e){ return ''; }
+}
+
+// SPREADS GRID
+function renderSpreads() {
+  var g = document.getElementById('sgrid');
+  var h = '';
+  for(var i = 0; i < SPREADS.length; i++) {
+    var s = SPREADS[i];
+    h += '<div class="scard" id="sc-' + s.id + '">'
+      + '<span class="cnt">' + s.count + '</span>'
+      + '<span class="ico">' + s.icon + '</span>'
+      + '<div class="nm">' + s.name + '</div>'
+      + '<div class="ds">' + s.desc + '</div>'
+      + '</div>';
+  }
+  g.innerHTML = h;
+  for(var i = 0; i < SPREADS.length; i++) {
+    (function(sid){
+      document.getElementById('sc-' + sid).onclick = function(){ startReading(sid); };
+    })(SPREADS[i].id);
+  }
+}
+
+// START READING
+function startReading(spreadId) {
+  var spread = null;
+  for(var i = 0; i < SPREADS.length; i++){
+    if(SPREADS[i].id === spreadId){ spread = SPREADS[i]; break; }
+  }
+  if(!spread){ return; }
+
+  var question = document.getElementById('gq').value;
+  var n = spread.pos.length;
+  var pool = TAROT_CARDS.slice().sort(function(){ return Math.random() - 0.5; });
+  var drawn = [];
+  for(var i = 0; i < n; i++){
+    var c = pool[i];
+    drawn.push({
+      id: c.id,
+      name: c.name,
+      arcana: c.arcana,
+      suit: c.suit || '',
+      symbol: c.symbol || '',
+      number: c.number || '',
+      upright: c.upright,
+      reversed: c.reversed,
+      keywords: c.keywords || [],
+      element: c.element || '',
+      planet: c.planet || '',
+      isRev: (Math.random() < 0.3)
+    });
+  }
+
+  CUR = { spread: spread, question: question, cards: drawn, date: new Date().toISOString() };
+
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('on'); });
+  document.getElementById('pg-reading').classList.add('on');
+
+  renderReading();
+}
+
+function renderReading() {
+  var r = CUR;
+  var area = document.getElementById('reading-area');
+  var cards = r.cards;
+  var pos = r.spread.pos;
+  var sid = r.spread.id;
+
+  // Cards layout
+  var layoutHtml = '';
+  if(sid === 'celtic') {
+    layoutHtml = '<div class="celtic">';
+    for(var i = 0; i < cards.length; i++){
+      layoutHtml += '<div class="cpos" data-p="' + (i+1) + '">'
+        + cardHtml(cards[i], i)
+        + '<div class="cpos-lbl">' + pos[i] + '</div>'
+        + '</div>';
+    }
+    layoutHtml += '</div>';
+  } else if(sid === 'year') {
+    layoutHtml = '<div class="year-g">';
+    for(var i = 0; i < cards.length; i++){
+      layoutHtml += '<div class="cpos">'
+        + cardHtml(cards[i], i)
+        + '<div class="cpos-lbl">' + pos[i] + '</div>'
+        + '</div>';
+    }
+    layoutHtml += '</div>';
+  } else {
+    layoutHtml = '<div class="cards-row">';
+    for(var i = 0; i < cards.length; i++){
+      layoutHtml += '<div class="cpos">'
+        + cardHtml(cards[i], i)
+        + '<div class="cpos-lbl">' + pos[i] + '</div>'
+        + '</div>';
+    }
+    layoutHtml += '</div>';
+  }
+
+  // Results list
+  var listHtml = '';
+  for(var i = 0; i < cards.length; i++){
+    var c = cards[i];
+    var txt = c.isRev ? c.reversed : c.upright;
+    if(txt.length > 115){ txt = txt.substring(0,115) + '...'; }
+    listHtml += '<div class="ritem" id="ri-' + i + '">'
+      + '<div class="ritem-h">'
+      + '<span class="chip">' + pos[i] + '</span>'
+      + '<span class="rname">' + c.name + (c.isRev ? ' ↕' : '') + '</span>'
+      + '</div>'
+      + '<div class="rpre">' + txt + '</div>'
+      + '</div>';
+  }
+
+  area.innerHTML = '<div class="rh"><h2>' + r.spread.icon + ' ' + r.spread.name + '</h2>'
+    + (r.question ? '<p>' + r.question + '</p>' : '')
+    + '</div>'
+    + layoutHtml
+    + '<div style="margin-top:18px">' + listHtml + '</div>'
+    + '<div class="actrow">'
+    + '<button class="btn btn-g" id="btn-save">✦ Salvar no Diário</button>'
+    + '<button class="btn btn-o" id="btn-oracle">🔮 Oráculo</button>'
+    + '<button class="btn btn-o btn-sm" id="btn-export">⬇ Exportar</button>'
+    + '<button class="btn btn-o btn-sm" id="btn-home">← Nova Tiragem</button>'
+    + '</div>';
+
+  // Bind buttons safely
+  document.getElementById('btn-save').onclick = function(){ saveReading(); };
+  document.getElementById('btn-oracle').onclick = function(){ openOracle(); };
+  document.getElementById('btn-export').onclick = function(){ exportTxt(); };
+  document.getElementById('btn-home').onclick = function(){ goPage('home'); };
+
+  // Bind card clicks
+  for(var i = 0; i < cards.length; i++){
+    (function(idx){
+      var el = document.getElementById('ri-' + idx);
+      if(el){ el.onclick = function(){ openDetail(idx); }; }
+    })(i);
+  }
+
+  // Also bind the card visuals
+  for(var i = 0; i < cards.length; i++){
+    (function(idx){
+      var el = document.getElementById('cw-' + idx);
+      if(el){ el.onclick = function(){ openDetail(idx); }; }
+    })(i);
+  }
+
+  // Flip cards
+  setTimeout(function(){
+    var inners = document.querySelectorAll('.ci');
+    for(var i = 0; i < inners.length; i++){
+      (function(el, delay){
+        setTimeout(function(){ el.classList.add('flipped'); }, delay);
+      })(inners[i], i * 170);
+    }
+  }, 80);
+}
+
+function cardHtml(card, idx) {
+  var sym = symOf(card);
+  var revClass = card.isRev ? ' rev' : '';
+  var shortName = card.name.split(' ').pop();
+  return '<div class="cw" id="cw-' + idx + '">'
+    + '<div class="ci">'
+    + '<div class="cf cb"></div>'
+    + '<div class="cf cv' + revClass + '">'
+    + '<div class="cnum">' + card.number + '</div>'
+    + '<div class="csym">' + sym + '</div>'
+    + '<div class="cnum">' + shortName + '</div>'
+    + '</div>'
+    + '</div>'
+    + '</div>';
+}
+
+function openDetail(idx) {
+  var c = CUR.cards[idx];
+  var pos = CUR.spread.pos[idx];
+  var sym = symOf(c);
+  var arcLabel = c.arcana === 'major' ? 'Arcano Maior' : 'Arcano Menor · ' + suitLabel(c.suit);
+  var meaning = c.isRev ? c.reversed : c.upright;
+  var otherTitle = c.isRev ? 'Significado Normal' : 'Significado Invertido';
+  var otherText = c.isRev ? c.upright : c.reversed;
+
+  var kwHtml = '';
+  for(var i = 0; i < c.keywords.length; i++){
+    kwHtml += '<span class="kw">' + c.keywords[i] + '</span>';
+  }
+
+  var body = '<div class="mh">'
+    + '<div class="msym">' + sym + '</div>'
+    + '<div class="minfo"><h2>' + c.name + '</h2>'
+    + (c.isRev ? '<span class="rev-b">↕ Invertida</span><br>' : '')
+    + '<div class="tags">'
+    + '<span class="tag">' + arcLabel + '</span>'
+    + (c.number ? '<span class="tag">' + c.number + '</span>' : '')
+    + (c.element ? '<span class="tag">' + c.element + '</span>' : '')
+    + (c.planet ? '<span class="tag">' + c.planet + '</span>' : '')
+    + '</div></div></div>'
+    + '<div class="ms"><div class="ms-t">Posição: ' + pos + '</div><p>' + meaning + '</p></div>'
+    + '<div class="ms"><div class="ms-t">Palavras-chave</div><div class="kws">' + kwHtml + '</div></div>'
+    + '<div class="ms"><div class="ms-t">' + otherTitle + '</div><p>' + otherText + '</p></div>';
+
+  document.getElementById('card-modal-body').innerHTML = body;
+  document.getElementById('card-modal').classList.add('on');
+}
+
+function saveReading() {
+  if(!CUR){ return; }
+  var readings = load();
+  readings.unshift({
+    id: Date.now(),
+    spreadName: CUR.spread.name,
+    spreadIcon: CUR.spread.icon,
+    spreadPos: CUR.spread.pos,
+    question: CUR.question,
+    date: CUR.date,
+    cards: CUR.cards
+  });
+  save(readings);
+  toast('Leitura salva ✦');
+}
+
+// LIBRARY
+function renderLibrary() {
+  var search = document.getElementById('lsearch').value.toLowerCase();
+  var h = '';
+  for(var i = 0; i < TAROT_CARDS.length; i++){
+    var c = TAROT_CARDS[i];
+    var mF = LIB_FILTER === 'all'
+      || (LIB_FILTER === 'major' && c.arcana === 'major')
+      || (LIB_FILTER !== 'major' && c.suit === LIB_FILTER);
+    var mS = !search
+      || c.name.toLowerCase().indexOf(search) >= 0
+      || (c.keywords && c.keywords.join(' ').toLowerCase().indexOf(search) >= 0);
+    if(mF && mS){
+      var sym = symOf(c);
+      var al = c.arcana === 'major' ? 'Maior' : suitLabel(c.suit);
+      h += '<div class="lcard" id="lc-' + c.id + '">'
+        + '<span class="lsym">' + sym + '</span>'
+        + '<div class="lnm">' + c.name + '</div>'
+        + '<div class="larc">' + al + '</div>'
+        + '</div>';
+    }
+  }
+  document.getElementById('lgrid').innerHTML = h;
+  // Bind clicks
+  for(var i = 0; i < TAROT_CARDS.length; i++){
+    (function(cid){
+      var el = document.getElementById('lc-' + cid);
+      if(el){ el.onclick = function(){ openLibDetail(cid); }; }
+    })(TAROT_CARDS[i].id);
+  }
+}
+
+document.getElementById('lsearch').addEventListener('input', renderLibrary);
+var fbs = document.querySelectorAll('.fb');
+for(var i = 0; i < fbs.length; i++){
+  fbs[i].addEventListener('click', function(){
+    for(var j = 0; j < fbs.length; j++){ fbs[j].classList.remove('on'); }
+    this.classList.add('on');
+    LIB_FILTER = this.getAttribute('data-f');
+    renderLibrary();
+  });
+}
+
+function openLibDetail(cardId) {
+  var c = null;
+  for(var i = 0; i < TAROT_CARDS.length; i++){
+    if(TAROT_CARDS[i].id === cardId){ c = TAROT_CARDS[i]; break; }
+  }
+  if(!c){ return; }
+  var sym = symOf(c);
+  var arcLabel = c.arcana === 'major' ? 'Arcano Maior' : 'Arcano Menor · ' + suitLabel(c.suit);
+  var kwHtml = '';
+  for(var i = 0; i < c.keywords.length; i++){
+    kwHtml += '<span class="kw">' + c.keywords[i] + '</span>';
+  }
+  document.getElementById('card-modal-body').innerHTML =
+    '<div class="mh">'
+    + '<div class="msym">' + sym + '</div>'
+    + '<div class="minfo"><h2>' + c.name + '</h2>'
+    + '<div class="tags">'
+    + '<span class="tag">' + arcLabel + '</span>'
+    + (c.number ? '<span class="tag">' + c.number + '</span>' : '')
+    + (c.element ? '<span class="tag">' + c.element + '</span>' : '')
+    + (c.planet ? '<span class="tag">' + c.planet + '</span>' : '')
+    + '</div></div></div>'
+    + '<div class="ms"><div class="ms-t">Palavras-chave</div><div class="kws">' + kwHtml + '</div></div>'
+    + '<div class="ms"><div class="ms-t">Significado Normal</div><p>' + c.upright + '</p></div>'
+    + '<div class="ms"><div class="ms-t">Significado Invertido</div><p>' + c.reversed + '</p></div>';
+  document.getElementById('card-modal').classList.add('on');
+}
+
+// JOURNAL
+function renderJournal() {
+  var readings = load();
+  var el = document.getElementById('jlist');
+  if(!readings.length){
+    el.innerHTML = '<div class="empty"><span class="empty-i">📜</span><h3>Nenhuma leitura salva</h3><p>Faça uma tiragem e salve para construir seu diário</p></div>';
+    return;
+  }
+  var h = '';
+  for(var i = 0; i < readings.length; i++){
+    var r = readings[i];
+    var chips = '';
+    var cc = r.cards || [];
+    for(var j = 0; j < Math.min(4, cc.length); j++){
+      chips += '<span class="jchip">' + cc[j].name + (cc[j].isRev ? ' ↕' : '') + '</span>';
+    }
+    if(cc.length > 4){ chips += '<span class="jchip">+' + (cc.length-4) + '</span>'; }
+    h += '<div class="jentry" id="je-' + r.id + '">'
+      + '<div class="jeh"><span class="jstype">' + (r.spreadIcon||'') + ' ' + (r.spreadName||'') + '</span>'
+      + '<span class="jdate">' + fmtDate(r.date) + '</span></div>'
+      + (r.question ? '<div class="jq">' + r.question + '</div>' : '')
+      + '<div class="jchips">' + chips + '</div>'
+      + '</div>';
+  }
+  el.innerHTML = h;
+  for(var i = 0; i < readings.length; i++){
+    (function(rid){
+      var el2 = document.getElementById('je-' + rid);
+      if(el2){ el2.onclick = function(){ openJEntry(rid); }; }
+    })(readings[i].id);
+  }
+}
+
+function openJEntry(id) {
+  var readings = load();
+  var r = null;
+  for(var i = 0; i < readings.length; i++){
+    if(readings[i].id == id){ r = readings[i]; break; }
+  }
+  if(!r){ return; }
+  var cards = r.cards || [];
+  var pos = r.spreadPos || [];
+  var listHtml = '';
+  for(var i = 0; i < cards.length; i++){
+    var c = cards[i];
+    var txt = c.isRev ? c.reversed : c.upright;
+    if(txt && txt.length > 115){ txt = txt.substring(0,115) + '...'; }
+    listHtml += '<div class="ritem" style="margin-bottom:9px">'
+      + '<div class="ritem-h"><span class="chip">' + (pos[i]||('Carta '+(i+1))) + '</span>'
+      + '<span class="rname">' + c.name + (c.isRev?' ↕':'') + '</span></div>'
+      + '<div class="rpre">' + (txt||'') + '</div>'
+      + '</div>';
+  }
+  document.getElementById('j-modal-body').innerHTML =
+    '<div style="margin-bottom:14px">'
+    + '<div style="font-family:Cinzel,serif;font-size:1.05rem;color:#c9a227;letter-spacing:.09em">' + (r.spreadIcon||'') + ' ' + (r.spreadName||'') + '</div>'
+    + '<div style="font-size:.78rem;color:#5a4a2a;margin-top:3px">' + fmtDate(r.date) + '</div>'
+    + (r.question ? '<div style="color:#a89060;font-style:italic;margin-top:7px">' + r.question + '</div>' : '')
+    + '</div>'
+    + '<div class="divider" style="margin:0 0 14px"></div>'
+    + listHtml
+    + '<div style="display:flex;gap:9px;justify-content:center;margin-top:14px">'
+    + '<button class="btn btn-o btn-sm" id="btn-del-' + id + '">🗑 Excluir</button>'
+    + '</div>';
+  document.getElementById('j-modal').classList.add('on');
+  document.getElementById('btn-del-' + id).onclick = function(){
+    var rr = load().filter(function(x){ return x.id != id; });
+    save(rr);
+    document.getElementById('j-modal').classList.remove('on');
+    renderJournal();
+    toast('Leitura removida');
+  };
+}
+
+// STATS
+function renderStats() {
+  var readings = load();
+  var el = document.getElementById('stats-c');
+  if(!readings.length){
+    el.innerHTML = '<div class="empty"><span class="empty-i">✨</span><h3>Sem dados ainda</h3><p>Faça algumas leituras para ver estatísticas</p></div>';
+    return;
+  }
+  var total = readings.length, totalC = 0, totalR = 0;
+  var cc = {}, sc = {};
+  readings.forEach(function(r){
+    var cards = r.cards || [];
+    totalC += cards.length;
+    totalR += cards.filter(function(c){ return c.isRev; }).length;
+    cards.forEach(function(c){
+      if(!cc[c.id]){ cc[c.id] = {count:0, name:c.name}; }
+      cc[c.id].count++;
+    });
+    var sn = r.spreadName || 'Tiragem';
+    sc[sn] = (sc[sn]||0) + 1;
+  });
+  var top = Object.values(cc).sort(function(a,b){ return b.count-a.count; }).slice(0,7);
+  var maxC = top.length ? top[0].count : 1;
+  var tcH = '';
+  top.forEach(function(c,i){
+    tcH += '<div class="bar-row"><div class="bar-rank">'+(i+1)+'</div><div class="bar-wrap"><div class="bar-name">'+c.name+'</div><div class="bar"><div class="bar-fill" style="width:'+(c.count/maxC*100)+'%"></div></div></div><div class="bar-cnt">'+c.count+'x</div></div>';
+  });
+  var spH = '';
+  Object.entries(sc).forEach(function(e){
+    spH += '<div class="bar-row"><div class="bar-wrap"><div class="bar-name">'+e[0]+'</div><div class="bar"><div class="bar-fill" style="width:'+(e[1]/total*100)+'%"></div></div></div><div class="bar-cnt">'+e[1]+'x</div></div>';
+  });
+  el.innerHTML = '<div class="sgrid">'
+    + '<div class="box" style="text-align:center"><div class="snum">'+total+'</div><div class="slbl">Leituras</div></div>'
+    + '<div class="box" style="text-align:center"><div class="snum">'+totalC+'</div><div class="slbl">Cartas tiradas</div></div>'
+    + '<div class="box" style="text-align:center"><div class="snum">'+totalR+'</div><div class="slbl">Invertidas</div></div>'
+    + '<div class="box" style="text-align:center"><div class="snum">'+(totalC?Math.round(totalR/totalC*100):0)+'%</div><div class="slbl">Taxa inv.</div></div>'
+    + '</div>'
+    + (tcH ? '<div class="box"><div class="box-title">Cartas mais frequentes</div>'+tcH+'</div>' : '')
+    + (spH ? '<div class="box"><div class="box-title">Tiragens realizadas</div>'+spH+'</div>' : '')
+    + '<div style="text-align:center;margin-top:14px"><button class="btn btn-o btn-sm" onclick="if(confirm(\'Apagar todos os dados?\')){localStorage.clear();location.reload();}">🗑 Limpar dados</button></div>';
+}
+
+// ORACLE
+function openOracle() {
+  ORACLE_HIST = [];
+  document.getElementById('card-modal-body').innerHTML =
+    '<div style="font-family:Cinzel,serif;font-size:.95rem;color:#c9a227;letter-spacing:.09em;margin-bottom:12px">🔮 Consultar Oráculo</div>'
+    + '<div class="cmsg-area" id="cmsgs"><div class="moracle"><div class="ms2">Oráculo</div>Estou pronto para aprofundar sua leitura. O que deseja explorar?</div></div>'
+    + '<div class="ci-row"><input class="cinput" id="cinput" placeholder="Faça sua pergunta..."><button class="btn btn-g btn-sm" id="btn-send">→</button></div>';
+  document.getElementById('card-modal').classList.add('on');
+  document.getElementById('btn-send').onclick = sendOracle;
+  document.getElementById('cinput').onkeydown = function(e){ if(e.key==='Enter'){ sendOracle(); } };
+}
+
+async function sendOracle() {
+  var inp = document.getElementById('cinput');
+  var q = inp ? inp.value.trim() : '';
+  if(!q){ return; }
+  var msgs = document.getElementById('cmsgs');
+  msgs.innerHTML += '<div class="muser">'+q+'</div>';
+  inp.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  ORACLE_HIST.push({role:'user', content:q});
+  var typing = document.createElement('div');
+  typing.className = 'moracle';
+  typing.innerHTML = '<div class="ms2">Oráculo</div>Consultando os arcanos...';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+  try {
+    var r = CUR;
+    var summary = r.cards.map(function(c,i){ return r.spread.pos[i]+': '+c.name+(c.isRev?' (invertida)':''); }).join(', ');
+    var sys = 'Você é um tarólogo sábio. Tiragem: '+r.spread.name+'. Questão: '+(r.question||'aberta')+'. Cartas: '+summary+'. Responda em português, poético e profundo. Máximo 150 palavras.';
+    var resp = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:ORACLE_HIST})});
+    var data = await resp.json();
+    var reply = (data.content&&data.content[0]&&data.content[0].text)||'As cartas permanecem em silêncio...';
+    ORACLE_HIST.push({role:'assistant',content:reply});
+    typing.innerHTML = '<div class="ms2">Oráculo</div>'+reply;
+  } catch(e) {
+    typing.innerHTML = '<div class="ms2">Oráculo</div>As cartas estão além do alcance agora.';
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// EXPORT
+function exportTxt() {
+  if(!CUR){ return; }
+  var r = CUR;
+  var txt = 'ARCANA — TAROT DIGITAL\n================================\n';
+  txt += 'Tiragem: '+r.spread.name+'\nData: '+fmtDate(r.date)+'\n';
+  if(r.question){ txt += 'Questão: '+r.question+'\n'; }
+  txt += '================================\n\n';
+  r.cards.forEach(function(c,i){
+    txt += '['+r.spread.pos[i]+']\n'+c.name+(c.isRev?' (INVERTIDA)':'')+'\n'+(c.isRev?c.reversed:c.upright)+'\n\n';
+  });
+  var blob = new Blob([txt],{type:'text/plain;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='arcana-'+new Date().toISOString().slice(0,10)+'.txt';
+  a.click(); URL.revokeObjectURL(url);
+  toast('Exportado ✦');
+}
+
+// START
+renderSpreads();
+renderLibrary();
+</script>
+</body>
+</html>
